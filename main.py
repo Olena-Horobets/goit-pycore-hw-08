@@ -1,6 +1,18 @@
 import re
 from collections import UserDict
 from datetime import datetime, timedelta
+import pickle
+
+def save_data(book, filename="addressbook.pkl"):
+    with open(filename, "wb") as f:
+        pickle.dump(book, f)
+
+def load_data(filename="addressbook.pkl"):
+    try:
+        with open(filename, "rb") as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        return AddressBook()  # Якщо файл не існує, повертаємо порожню книгу
 
 # ======= Базові класи =======
 
@@ -179,13 +191,15 @@ def birthdays(args, book):
 # ======= Основна функція main() =======
 
 def main():
-    book = AddressBook()
+    book = load_data()  # Завантаження адресної книги при запуску
     print("Welcome to the assistant bot!")
+
     while True:
         user_input = input(">>> ")
         command, args = parse_input(user_input)
 
         if command in ("close", "exit"):
+            save_data(book)  # Збереження книги перед виходом
             print("Good bye!")
             break
         elif command == "hello":
@@ -206,6 +220,7 @@ def main():
             print(birthdays(args, book))
         else:
             print("Invalid command.")
+
 
 if __name__ == "__main__":
     main()
